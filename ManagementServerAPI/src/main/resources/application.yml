@@ -11,10 +11,10 @@ spring:
     show-sql: true
 
 application:
-    name: PersonAPI
+    name: ManagementServerRestAPI
 
 server:
-  servlet.context-path: /person/v1
+  servlet.context-path: /management/server/v1
     
 springdoc:
   swagger-ui:
