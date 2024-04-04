@@ -12,3 +12,10 @@ spring:
 
 application:
     name: PersonAPI
+
+server:
+  servlet.context-path: /person/v1
+    
+springdoc:
+  swagger-ui:
+    use-root-path: true

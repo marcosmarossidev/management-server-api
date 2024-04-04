@@ -18,7 +18,7 @@ public class CustomAdviceController {
 	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorMessage> handleException(Exception ex, WebRequest request) {
-		HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+		HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 		
 		ErrorMessage em = new ErrorMessage(ex.getMessage(), request.getDescription(false), new Date(), String.valueOf(status.value()));
 		
