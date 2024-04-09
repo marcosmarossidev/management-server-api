@@ -49,7 +49,7 @@ public class PersonService {
 	}
 
 	public PersonVO update(PersonVO person) throws Exception {
-		FieldValidator.checkField(new String[] { "firstName", "lastName", "gender", "key" }, person);
+		FieldValidator.check(new String[] { "firstName", "lastName", "gender", "key" }, person);
 		
 		Person aux = repository.findById(person.getKey())
 				.orElseThrow(() -> new ResourceNotFoundException("Person with id " + person.getKey() + " not found"));
@@ -66,7 +66,7 @@ public class PersonService {
 	}
 
 	public PersonVO insert(PersonVO person) throws Exception {
-		FieldValidator.checkField(new String[] { "firstName", "lastName", "gender" }, person);
+		FieldValidator.check(new String[] { "firstName", "lastName", "gender" }, person);
 		
 		Person convertedPerson = CustomMapper.parseObject(person, Person.class);
 		

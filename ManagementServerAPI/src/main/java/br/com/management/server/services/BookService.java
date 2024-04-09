@@ -50,7 +50,7 @@ public class BookService {
 	}
 
 	public BookVO update(BookVO book) throws Exception {
-		FieldValidator.checkField(new String[] { "author", "price", "title", "key" }, book);
+		FieldValidator.check(new String[] { "author", "price", "title", "key" }, book);
 		
 		Book aux = repository.findById(book.getKey())
 				.orElseThrow(() -> new ResourceNotFoundException("Book with id " + book.getKey() + " not found"));
@@ -67,7 +67,7 @@ public class BookService {
 	}
 
 	public BookVO insert(BookVO book) throws Exception {
-		FieldValidator.checkField(new String[] { "author", "price", "title" }, book);
+		FieldValidator.check(new String[] { "author", "price", "title" }, book);
 		
 		Book convertedBook = CustomMapper.parseObject(book, Book.class);
 		

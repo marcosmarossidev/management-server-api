@@ -1,6 +1,6 @@
 spring:
  datasource:
-    url: jdbc:mysql://localhost:3306/person_db01?useTimezone=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/management?useTimezone=true&serverTimezone=UTC
     username: root
     password: admin123
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -19,3 +19,13 @@ server:
 springdoc:
   swagger-ui:
     use-root-path: true
+    
+cors:
+  originPatterns: 
+  
+  
+security:
+  jwt:
+    token:
+      secret-key: 53cd84
+      expire-length:  3600000
