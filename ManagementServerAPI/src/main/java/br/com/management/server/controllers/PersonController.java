@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -102,6 +103,20 @@ public class PersonController {
 			produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
 	public PersonVO insert(@RequestBody PersonVO person) throws Exception {
 		return service.insert(person);
+	}
+	
+	@PatchMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
+	@Operation(summary = "Disable a specific person by your id", description = "Disable a specific person by your id", tags = { "People" }, responses = {
+			@ApiResponse(responseCode = "200", description = "Success", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = PersonVO.class)) }),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }), })
+	public PersonVO disablePerson(@PathVariable(name = "id") Long id) {
+		return service.disablePerson(id);
 	}
 
 }

@@ -16,17 +16,19 @@ public class PersonVO extends RepresentationModel<PersonVO> implements Serializa
 	private String lastName;
 	private String address;	
 	private String gender;
+	private Boolean enabled;
 	
 	public PersonVO() {
 		super();
 	}
 	
-	public PersonVO(Long key, String firstName, String lastName, String address, String gender) {
+	public PersonVO(Long key, String firstName, String lastName, String address, String gender, Boolean enabled) {
 		this.key = key;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.address = address;
 		this.gender = gender;
+		this.enabled = enabled;
 	}
 	
 	public String getFirstName() {
@@ -58,6 +60,12 @@ public class PersonVO extends RepresentationModel<PersonVO> implements Serializa
 	}
 	public void setKey(Long key) {
 		this.key = key;
+	}
+	public Boolean getEnabled() {
+		return enabled;
+	}
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
 	}	
 		
 }

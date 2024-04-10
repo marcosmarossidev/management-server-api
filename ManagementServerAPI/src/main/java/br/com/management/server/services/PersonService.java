@@ -14,6 +14,7 @@ import br.com.management.server.exception.ResourceNotFoundException;
 import br.com.management.server.mapper.CustomMapper;
 import br.com.management.server.model.Person;
 import br.com.management.server.repositories.PersonRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class PersonService {
@@ -48,21 +49,19 @@ public class PersonService {
 		repository.delete(person);
 	}
 
-	public PersonVO update(PersonVO person) throws Exception {
-		FieldValidator.check(new String[] { "firstName", "lastName", "gender", "key" }, person);
+	public PersonVO update(PersonVO req) throws Exception {
+		FieldValidator.check(new String[] { "firstName", "lastName", "gender", "key", "enabled" }, req);
 		
-		Person aux = repository.findById(person.getKey())
-				.orElseThrow(() -> new ResourceNotFoundException("Person with id " + person.getKey() + " not found"));
-
-		aux.setFirstName(person.getFirstName());
-		aux.setLastName(person.getLastName());
-		aux.setGender(person.getGender());
-		aux.setAddress(person.getAddress());
+		Person person = repository.findById(req.getKey())
+				.orElseThrow(() -> new ResourceNotFoundException("Person with id " + req.getKey() + " not found"));
+		 
+		person = new Person(person.getId(), req.getFirstName(), req.getLastName(), req.getAddress(), req.getGender(),
+				req.getEnabled());
 		
-		PersonVO personVO = CustomMapper.parseObject(repository.save(aux), PersonVO.class);
-		personVO.add(linkTo(methodOn(PersonController.class).findById(personVO.getKey())).withSelfRel());
+		PersonVO res = CustomMapper.parseObject(repository.save(person), PersonVO.class);
+		res.add(linkTo(methodOn(PersonController.class).findById(res.getKey())).withSelfRel());
 		
-		return personVO;
+		return res;
 	}
 
 	public PersonVO insert(PersonVO person) throws Exception {
@@ -74,6 +73,20 @@ public class PersonService {
 		personVO.add(linkTo(methodOn(PersonController.class).findById(personVO.getKey())).withSelfRel());
 		
 		return personVO;
+	}
+	
+	@Transactional	
+	public PersonVO disablePerson(Long id) {
+		
+		repository.disablePerson(id);
+		
+		Person person = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Person with id " + id + " not found"));
+		
+		PersonVO personVO = CustomMapper.parseObject(person, PersonVO.class);
+		personVO.add(linkTo(methodOn(PersonController.class).findById(id)).withSelfRel());
+		
+		return personVO;	
 	}
 
 }
