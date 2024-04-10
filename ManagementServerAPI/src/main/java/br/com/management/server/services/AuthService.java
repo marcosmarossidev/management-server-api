@@ -51,4 +51,17 @@ public class AuthService {
 		}
 	}
 
+	public TokenVO refreshToken(String username, String refreshToken) throws Exception {		
+		User user = repository.findByUsername(username);
+		TokenVO tokenResponse = new TokenVO();
+
+		if (user != null) {
+			tokenResponse = tokenProvider.createRefreshToken(refreshToken);
+		} else {
+			throw new UsernameNotFoundException("Username " + username + " not found");
+		}
+
+		return tokenResponse;
+	}
+
 }

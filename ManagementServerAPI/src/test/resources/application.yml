@@ -1,0 +1,33 @@
+spring:
+ datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE;DATABASE_TO_UPPER=false;MODE=MYSQL
+    driver-class-name: org.h2.Driver
+    
+ jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+ flyway:
+      locations: classpath:db/migration
+
+application:
+    name: ManagementServerRestAPI
+
+server:
+  servlet.context-path: /management/server/v1
+    
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    
+cors:
+  originPatterns: 
+  
+  
+security:
+  jwt:
+    token:
+      secret-key: 53cd84
+      expire-length:  3600000
