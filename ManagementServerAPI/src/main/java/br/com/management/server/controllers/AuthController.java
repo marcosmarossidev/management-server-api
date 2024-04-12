@@ -57,7 +57,7 @@ public class AuthController {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = TokenVO.class)) }),
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }),
-			@ApiResponse(responseCode = "401", description = "Forbbiden", content = {
+			@ApiResponse(responseCode = "403", description = "Forbbiden", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }),

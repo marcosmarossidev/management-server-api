@@ -1,4 +1,4 @@
-package br.com.management.server.data.vo;
+ package br.com.management.server.data.vo;
 
 import java.io.Serializable;
 import java.util.Date;

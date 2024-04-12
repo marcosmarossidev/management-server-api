@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import br.com.management.server.data.vo.PersonVO;
 import br.com.management.server.integrationtest.core.BasicCrudTest;
+import br.com.management.server.integrationtest.wrappers.WrapperPersonVO;
 import br.com.management.server.mapper.mocks.MockPerson;
 
 public class PersonControllerTest extends BasicCrudTest {
@@ -62,14 +65,17 @@ public class PersonControllerTest extends BasicCrudTest {
 	@Test
 	@Order(3)
 	public void testFindEntities() throws Exception {
-		MvcResult responseObject = mockMvc.perform(MockMvcRequestBuilders.get("/person").headers(httpHeaders))
+		MvcResult responseObject = mockMvc.perform(MockMvcRequestBuilders.get("/person?page=0&limit=25&direction=asc").headers(httpHeaders))
 				.andDo(print()).andExpect(status().isOk()).andReturn();
 
-		List<PersonVO> people = mapper.readValue(responseObject.getResponse().getContentAsString(),
-				new TypeReference<List<PersonVO>>() {});
+		WrapperPersonVO wrapper = mapper.readValue(responseObject.getResponse().getContentAsString(),
+				WrapperPersonVO.class);
 
-		assertNotNull(people);
+		assertNotNull(wrapper);
+		
+		List<PersonVO> people = wrapper.getEmbedded().getPeople();
 		assertFalse(people.isEmpty());
+		assertEquals(25, people.size());
 	}
 
 	@Override
@@ -122,25 +128,65 @@ public class PersonControllerTest extends BasicCrudTest {
 	@Test
 	@Order(8)
 	public void whenNotContainsPersonInGet() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.get("/person/" + 1000).headers(httpHeaders)).andDo(print())
+		mockMvc.perform(MockMvcRequestBuilders.get("/person/" + 2024).headers(httpHeaders)).andDo(print())
 				.andExpect(status().isNotFound()).andReturn();
 	}
 
 	@Test
 	@Order(9)
 	public void whenNotContainsPersonInDelete() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.delete("/person/" + 1000).headers(httpHeaders)).andDo(print())
+		mockMvc.perform(MockMvcRequestBuilders.delete("/person/" + 2024).headers(httpHeaders)).andDo(print())
 				.andExpect(status().isNotFound()).andReturn();
 	}
 
 	@Test
 	@Order(10)
 	public void whenNotContainsPersonInUpdate() throws Exception {
-		PersonVO personVO = mock.mockVO(2);
+		PersonVO personVO = mock.mockVO(2024);
 
 		mockMvc.perform(MockMvcRequestBuilders.put("/person").content(mapper.writeValueAsString(personVO))
 				.headers(httpHeaders).contentType(MediaType.APPLICATION_JSON)).andDo(print())
 				.andExpect(status().isNotFound());
+	}
+		
+	@Test
+	@Order(11)
+	public void testFindPersonByName() throws Exception {
+		MvcResult responseObject = mockMvc.perform(MockMvcRequestBuilders.get("/person/findPersonByName/ali?page=0&limit=25&direction=asc").headers(httpHeaders))
+				.andDo(print()).andExpect(status().isOk()).andReturn();
+
+		WrapperPersonVO wrapper = mapper.readValue(responseObject.getResponse().getContentAsString(),
+				WrapperPersonVO.class);
+
+		assertNotNull(wrapper);
+		
+		List<PersonVO> people = wrapper.getEmbedded().getPeople();
+		assertFalse(people.isEmpty());
+		assertEquals(9, people.size());
+	}
+	
+	
+	@Test
+	@Order(12)
+	public void testHATEAOS() throws Exception {
+		MvcResult responseObject = mockMvc.perform(MockMvcRequestBuilders.get("/person?page=0&limit=25&direction=asc").headers(httpHeaders))
+				.andDo(print()).andExpect(status().isOk()).andReturn();
+
+		Map<String, Object> hateaosMap = mapper.readValue(responseObject.getResponse().getContentAsString(), new TypeReference<HashMap<String,Object>>() {});
+		
+		assertNotNull(hateaosMap);		
+		assertFalse(hateaosMap.isEmpty());
+		
+		@SuppressWarnings("unchecked")
+		Map<String, Object> links = (Map<String, Object>) hateaosMap.get("_links");
+		
+		assertNotNull(links);		
+		assertFalse(links.isEmpty());
+		
+		assertTrue(links.get("first").toString().contains("{href=http://localhost/person?limit=25&direction=asc&page=0&size=25&sort=firstName,asc}"));
+		assertTrue(links.get("self").toString().contains("{href=http://localhost/person?page=0&limit=25&direction=asc}"));
+		assertTrue(links.get("next").toString().contains("{href=http://localhost/person?limit=25&direction=asc&page=1&size=25&sort=firstName,asc}"));
+		assertTrue(links.get("last").toString().contains("{href=http://localhost/person?limit=25&direction=asc&page=39&size=25&sort=firstName,asc}"));
 	}
 
 }

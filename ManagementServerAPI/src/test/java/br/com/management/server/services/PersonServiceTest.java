@@ -1,13 +1,11 @@
 package br.com.management.server.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.web.PagedResourcesAssembler;
 
 import br.com.management.server.data.vo.PersonVO;
 import br.com.management.server.exception.RequiredFieldException;
@@ -38,6 +37,9 @@ class PersonServiceTest {
 	@Mock
 	private PersonRepository repository;
 	
+	@Mock
+	private PagedResourcesAssembler<PersonVO> assembler;
+	
 	@BeforeEach
 	void setUp() throws Exception {
 		input = new MockPerson();
@@ -54,18 +56,6 @@ class PersonServiceTest {
 		PersonVO vo = service.findById(1L);
 		
 		assertPerson(vo);
-	}
-
-	@Test
-	void testFindAll() {
-		List<Person> people = input.mockEntityList();
-		
-		when(repository.findAll()).thenReturn(people);
-		
-		List<PersonVO> personVOs = service.findAll();
-		
-		assertFalse(personVOs.isEmpty());
-		assertEquals(14, personVOs.size());
 	}
 
 	@Test

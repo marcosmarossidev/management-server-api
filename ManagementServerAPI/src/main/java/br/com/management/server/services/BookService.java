@@ -3,9 +3,13 @@ package br.com.management.server.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import br.com.management.server.controllers.BookController;
@@ -22,6 +26,9 @@ public class BookService {
 	@Autowired
 	private BookRepository repository;
 
+	@Autowired
+	private PagedResourcesAssembler<BookVO> assembler;
+	
 	public BookVO findById(Long id) {
 		Book book = repository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Book with id " + id + " not found"));
@@ -32,14 +39,19 @@ public class BookService {
 		return bookVO;
 	}
 
-	public List<BookVO> findAll() {
-		List<BookVO> books = CustomMapper.parseListObjects(repository.findAll(), BookVO.class);
+	public PagedModel<EntityModel<BookVO>> findAll(Pageable pageable) {
+		Page<Book> bookPage = repository.findAll(pageable);
 		
-		books.stream().forEach(item -> {
+		Page<BookVO> bookVosPage = bookPage.map(b -> CustomMapper.parseObject(b, BookVO.class));
+		
+		bookVosPage.stream().forEach(item -> {
 			item.add(linkTo(methodOn(BookController.class).findById(item.getKey())).withSelfRel());
 		});
 		
-		return books;
+		Link link = linkTo(methodOn(BookController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		
+		return assembler.toModel(bookVosPage, link);
 	}
 
 	public void delete(Long id) {

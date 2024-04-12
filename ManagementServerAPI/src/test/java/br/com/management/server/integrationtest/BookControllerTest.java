@@ -3,10 +3,13 @@ package br.com.management.server.integrationtest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -18,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import br.com.management.server.data.vo.BookVO;
 import br.com.management.server.integrationtest.core.BasicCrudTest;
+import br.com.management.server.integrationtest.wrappers.WrapperBookVO;
 import br.com.management.server.mapper.mocks.MockBook;
 
 public class BookControllerTest extends BasicCrudTest {
@@ -61,14 +65,19 @@ public class BookControllerTest extends BasicCrudTest {
 	@Test
 	@Order(3)
 	public void testFindEntities() throws Exception {
-		MvcResult responseObject = mockMvc.perform(MockMvcRequestBuilders.get("/books")
+		MvcResult responseObject = mockMvc.perform(MockMvcRequestBuilders.get("/books?page=0&limit=25&direction=asc")
 				.headers(httpHeaders))
 				.andDo(print()).andExpect(status().isOk()).andReturn();
 		
 		String contentAsString = responseObject.getResponse().getContentAsString();
-		List<BookVO> people = mapper.readValue(contentAsString, new TypeReference<List<BookVO>>() {});
+		WrapperBookVO wrapper = mapper.readValue(contentAsString, WrapperBookVO.class);
 		
-		assertNotNull(people);
+		assertNotNull(wrapper);
+		
+		List<BookVO> people = wrapper.getEmbedded().getBooks();
+		
+		assertFalse(people.isEmpty());
+		assertEquals(15, people.size());
 		assertFalse(people.isEmpty());		
 	}
 	
@@ -133,6 +142,26 @@ public class BookControllerTest extends BasicCrudTest {
 				.content(mapper.writeValueAsString(bookVO))
 				.headers(httpHeaders).contentType(MediaType.APPLICATION_JSON))
 				.andDo(print()).andExpect(status().isNotFound());
+	}
+	
+	@Test
+	@Order(10)
+	public void testHATEAOS() throws Exception {
+		MvcResult responseObject = mockMvc.perform(MockMvcRequestBuilders.get("/books?page=0&limit=25&direction=asc").headers(httpHeaders))
+				.andDo(print()).andExpect(status().isOk()).andReturn();
+
+		Map<String, Object> hateaosMap = mapper.readValue(responseObject.getResponse().getContentAsString(), new TypeReference<HashMap<String,Object>>() {});
+		
+		assertNotNull(hateaosMap);		
+		assertFalse(hateaosMap.isEmpty());
+		
+		@SuppressWarnings("unchecked")
+		Map<String, Object> links = (Map<String, Object>) hateaosMap.get("_links");
+		
+		assertNotNull(links);		
+		assertFalse(links.isEmpty());
+		
+		assertTrue(links.get("self").toString().contains("{href=http://localhost/books?page=0&limit=25&direction=asc}"));;
 	}
 
 }

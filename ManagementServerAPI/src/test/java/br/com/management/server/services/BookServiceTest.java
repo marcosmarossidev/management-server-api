@@ -1,13 +1,11 @@
 package br.com.management.server.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -54,18 +52,6 @@ class BookServiceTest {
 		BookVO vo = service.findById(1L);
 		
 		assertBook(vo);
-	}
-
-	@Test
-	void testFindAll() {
-		List<Book> books = input.mockEntityList();
-		
-		when(repository.findAll()).thenReturn(books);
-		
-		List<BookVO> bookVOs = service.findAll();
-		
-		assertFalse(bookVOs.isEmpty());
-		assertEquals(14, bookVOs.size());
 	}
 
 	@Test

@@ -1,8 +1,12 @@
 package br.com.management.server.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.management.server.controllers.advice.ErrorMessage;
@@ -57,8 +62,37 @@ public class PersonController {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }), })
-	public List<PersonVO> findAll() {
-		return service.findAll();
+	public PagedModel<EntityModel<PersonVO>> findAll(
+			@RequestParam(value = "page", defaultValue = "0") Integer page,
+			@RequestParam(value = "limit", defaultValue = "10") Integer limit,
+			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
+		
+		var sortDirection = direction.equalsIgnoreCase("desc") ? Direction.DESC : Direction.ASC;
+		Pageable pageable = PageRequest.of(page, limit, Sort.by(sortDirection, "firstName"));
+		
+		return service.findAll(pageable);
+	}
+	
+	@GetMapping(value = "findPersonByName/{firstName}", produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
+	@Operation(summary = "Finds people by first name", description = "Finds people by first name", tags = { "People" }, responses = {
+			@ApiResponse(responseCode = "200", description = "Success", content = {
+					@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PersonVO.class))) }),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)) }), })
+	public PagedModel<EntityModel<PersonVO>> findPeopleByName(
+			@RequestParam(value = "page", defaultValue = "0") Integer page,
+			@RequestParam(value = "limit", defaultValue = "10") Integer limit,
+			@RequestParam(value = "direction", defaultValue = "asc") String direction,
+			@PathVariable(name = "firstName") String firstName) {
+		
+		var sortDirection = direction.equalsIgnoreCase("desc") ? Direction.DESC : Direction.ASC;
+		Pageable pageable = PageRequest.of(page, limit, Sort.by(sortDirection, "firstName"));
+		
+		return service.findPersonByName(firstName, pageable);
 	}
 
 	@DeleteMapping(path = "/{id}")

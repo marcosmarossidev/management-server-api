@@ -1,11 +1,16 @@
 package br.com.management.server.services;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.stereotype.Service;
 
 import br.com.management.server.controllers.PersonController;
 import br.com.management.server.core.FieldValidator;
@@ -21,6 +26,9 @@ public class PersonService {
 
 	@Autowired
 	private PersonRepository repository;
+	
+	@Autowired
+	private PagedResourcesAssembler<PersonVO> assembler;
 
 	public PersonVO findById(Long id) {
 		Person person = repository.findById(id)
@@ -32,14 +40,36 @@ public class PersonService {
 		return personVO;
 	}
 
-	public List<PersonVO> findAll() {
-		List<PersonVO> peopleVO = CustomMapper.parseListObjects(repository.findAll(), PersonVO.class);
+	public PagedModel<EntityModel<PersonVO>> findAll(Pageable pageable) {
 		
-		peopleVO.stream().forEach(item -> {
+		Page<Person> personPage = repository.findAll(pageable);
+		
+		Page<PersonVO> personVosPage = personPage.map(p -> CustomMapper.parseObject(p, PersonVO.class));
+		
+		personVosPage.stream().forEach(item -> {
 			item.add(linkTo(methodOn(PersonController.class).findById(item.getKey())).withSelfRel());
 		});
 		
-		return peopleVO;
+		Link link = linkTo(methodOn(PersonController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		
+		return assembler.toModel(personVosPage, link);
+	}
+	
+	public PagedModel<EntityModel<PersonVO>> findPersonByName(String firstName, Pageable pageable) {
+		
+		Page<Person> personPage = repository.findPersonByName(firstName, pageable);
+		
+		Page<PersonVO> personVosPage = personPage.map(p -> CustomMapper.parseObject(p, PersonVO.class));
+		
+		personVosPage.stream().forEach(item -> {
+			item.add(linkTo(methodOn(PersonController.class).findById(item.getKey())).withSelfRel());
+		});
+		
+		Link link = linkTo(methodOn(PersonController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		
+		return assembler.toModel(personVosPage, link);
 	}
 
 	public void delete(Long id) {
