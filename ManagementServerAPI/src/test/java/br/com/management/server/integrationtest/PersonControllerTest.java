@@ -188,5 +188,17 @@ public class PersonControllerTest extends BasicCrudTest {
 		assertTrue(links.get("next").toString().contains("{href=http://localhost/person?limit=25&direction=asc&page=1&size=25&sort=firstName,asc}"));
 		assertTrue(links.get("last").toString().contains("{href=http://localhost/person?limit=25&direction=asc&page=39&size=25&sort=firstName,asc}"));
 	}
+	
+	@Test
+	@Order(13)
+	public void whenRequestNotContainsRequireFields() throws Exception {
+		PersonVO bookVO = mock.mockVO(1);
+		bookVO.setFirstName(null);
+		
+		mockMvc.perform(MockMvcRequestBuilders.post("/person")
+				.content(mapper.writeValueAsString(bookVO))
+				.headers(httpHeaders).contentType(MediaType.APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isBadRequest());	
+	}
 
 }

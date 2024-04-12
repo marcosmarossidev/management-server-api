@@ -11,21 +11,30 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
  flyway:
       locations: classpath:db/migration
+ servlet:
+   multipart:
+     enabled: true
+     file-size-threshold: 2KB
+     max-file-size: 200MB
+     max-request-size: 215MB
 
 application:
     name: ManagementServerRestAPI
 
 server:
   servlet.context-path: /management/server/v1
+  port: 80
+  
+file:
+  upload-dir: /Users/marco/Documents/uploadDir
     
 springdoc:
   swagger-ui:
     use-root-path: true
-    
+
 cors:
   originPatterns: 
-  
-  
+
 security:
   jwt:
     token:

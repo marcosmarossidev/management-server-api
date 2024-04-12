@@ -164,4 +164,16 @@ public class BookControllerTest extends BasicCrudTest {
 		assertTrue(links.get("self").toString().contains("{href=http://localhost/books?page=0&limit=25&direction=asc}"));;
 	}
 
+	@Test
+	@Order(11)
+	public void whenRequestNotContainsRequireFields() throws Exception {
+		BookVO bookVO = mock.mockVO(1);
+		bookVO.setAuthor(null);
+		
+		mockMvc.perform(MockMvcRequestBuilders.post("/books")
+				.content(mapper.writeValueAsString(bookVO))
+				.headers(httpHeaders).contentType(MediaType.APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isBadRequest());	
+	}
+
 }

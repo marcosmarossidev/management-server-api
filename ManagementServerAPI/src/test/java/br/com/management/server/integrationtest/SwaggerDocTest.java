@@ -33,6 +33,6 @@ public class SwaggerDocTest extends JUnitTestConfigurer {
 		List<Map<String, Object>> tags = (List<Map<String, Object>>) swagger.get("tags");
 		
 		assertTrue(!tags.isEmpty());
-		assertTrue(tags.size() == 3);
+		assertTrue(tags.size() == 4);
 	}
 }
