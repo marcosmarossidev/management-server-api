@@ -62,7 +62,7 @@ public class SecurityConfiguration {
 				.authorizeHttpRequests(
 						authorizeHttpRequests -> authorizeHttpRequests
 							.requestMatchers("/auth/signin", "/auth/refresh/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
-							.requestMatchers("/books/**", "/person/**").authenticated()
+							.requestMatchers("/books/**", "/person/**", "/file/**").authenticated()
 							.requestMatchers("/users").denyAll()
 						)
 				.cors(cors -> {})

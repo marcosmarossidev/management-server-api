@@ -9,6 +9,12 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+ servlet:
+   multipart:
+     enabled: true
+     file-size-threshold: 2KB
+     max-file-size: 200MB
+     max-request-size: 215MB
 
 application:
     name: ManagementServerRestAPI
@@ -23,6 +29,8 @@ springdoc:
 cors:
   originPatterns: 
   
+file:
+  upload-dir: /Users/marco/Documents/uploadDir
   
 security:
   jwt:
